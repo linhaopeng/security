@@ -9,11 +9,13 @@
 	<!-- 认证管理器,配置了管理员与角色的关系   id为默认的。-->
 	<security:authentication-manager id="org.springframework.security.authenticationManager">
 		<!-- 配置账号密码所属的角色  角色以 ROLE_开头，为spring获取名称的标识 -->
-		<security:authentication-provider>
+		<security:authentication-provider user-service-ref="accountDao"><!-- 采用service的方式 -->
+			<!-- 采用xml的方式 
 			<security:user-service>
 				<security:user name="user" password="user" authorities="ROLE_USER" />
 				<security:user name="admin" password="admin" authorities="ROLE_ADMIN" />
 			</security:user-service>
+			 -->
 		</security:authentication-provider>
 	</security:authentication-manager>
 	
@@ -22,7 +24,7 @@
 		pattern="/admin/**" 	: 为配置的路径
 		access="ROLE_ADMIN" 	: 需要管理员权限,“ROLE_”前缀是一个提示Spring使用基于角色的检查的标记。
 	 -->
-	<security:http auto-config="false" use-expressions="true" access-denied-page="/login.jsp?error=access-denied-page">
+	<security:http auto-config="false" use-expressions="true" access-denied-page="/login.jsp?error=没有权限">
 		<security:intercept-url pattern="/admin/**" access="hasRole('ROLE_ADMIN')" />
 		<security:intercept-url pattern="/user/**" access="hasAnyRole('ROLE_USER','ROLE_ADMIN')" />	
 		
@@ -36,5 +38,7 @@
 		
 		
 	</security:http>
+	
+	<security:debug/>
 
 </beans>
