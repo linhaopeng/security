@@ -6,10 +6,28 @@
           http://www.springframework.org/schema/security
           http://www.springframework.org/schema/security/spring-security-3.2.xsd">
 
+	<!-- 
+		开启<security:debug/> 即可看到默认拦截器链
+		
+		Security filter chain: [
+		  SecurityContextPersistenceFilter
+		  WebAsyncManagerIntegrationFilter
+		  UsernamePasswordAuthenticationFilter
+		  RequestCacheAwareFilter
+		  SecurityContextHolderAwareRequestFilter
+		  AnonymousAuthenticationFilter
+		  SessionManagementFilter
+		  ExceptionTranslationFilter
+		  FilterSecurityInterceptor
+		]
+	 -->
+
 	<!-- 认证管理器,配置了管理员与角色的关系   id为默认的。-->
-	<security:authentication-manager id="org.springframework.security.authenticationManager">
+	<security:authentication-manager id="org.springframework.security.authenticationManager" alias="authenticationManager">
 		<!-- 配置账号密码所属的角色  角色以 ROLE_开头，为spring获取名称的标识 -->
-		<security:authentication-provider user-service-ref="accountDao"><!-- 采用service的方式 -->
+		
+		<!-- user-service-ref="accountDao"： 采用service的方式 -->
+		<security:authentication-provider user-service-ref="accountDao">
 			<!-- 采用xml的方式 
 			<security:user-service>
 				<security:user name="user" password="user" authorities="ROLE_USER" />
@@ -24,20 +42,35 @@
 		pattern="/admin/**" 	: 为配置的路径
 		access="ROLE_ADMIN" 	: 需要管理员权限,“ROLE_”前缀是一个提示Spring使用基于角色的检查的标记。
 	 -->
-	<security:http auto-config="false" use-expressions="true" access-denied-page="/login.jsp?error=没有权限">
+	<security:http auto-config="false" use-expressions="true" access-denied-page="/login.jsp?error=access-denied-page">
+		<!-- xml配置
 		<security:intercept-url pattern="/admin/**" access="hasRole('ROLE_ADMIN')" />
 		<security:intercept-url pattern="/user/**" access="hasAnyRole('ROLE_USER','ROLE_ADMIN')" />	
+		 -->
+		 
+		<!-- 增加权限过滤器 -->
+		<security:custom-filter ref="filterSecurityInterceptor" before="FILTER_SECURITY_INTERCEPTOR"/>
 		
 		<!-- 默认登录地址：j_spring_security_check -->
-		<security:form-login default-target-url="/index.jsp"
+		<security:form-login default-target-url="/index.jsp" 
 			username-parameter="username"
 			password-parameter="password"
 			authentication-failure-url="/login.jsp?error=authentication-failure-url"
-			login-page="/login.jsp"
-		/>
-		
+			login-page="/login.jsp"/>
+		<!-- 注销也是由,Security框架来实现,LogoutFilter ,默认地址j_spring_security_logout   -->
+	 	<security:logout logout-success-url="/login.jsp"/>
 		
 	</security:http>
+	
+	<!-- 配置 验证过滤器, 此过滤器取代系统的XML权限过滤 , 此过滤器配置完毕之后存放到 系统缺省的过滤链中-->
+	<bean id="filterSecurityInterceptor" class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
+		<!-- 需要认证管理器, 通过它可以获取 管理员已经拥有的角色信息 -->
+		<property name="authenticationManager" ref="authenticationManager"></property>
+		<!-- 决策器 -->
+		<property name="accessDecisionManager" ref="roleAccessDecisionManager" />	 	
+		<!--  -->
+	 	<property name="securityMetadataSource" ref="urlDao" />
+	</bean>
 	
 	<security:debug/>
 

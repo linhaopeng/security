@@ -18,13 +18,14 @@ import javax.persistence.Transient;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.GenericGenerator;
+import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.GrantedAuthority;
 
 @Entity
 @Table(name = "role", schema = "")
 @DynamicInsert(true)
 @DynamicUpdate(true)
-public class Role implements java.io.Serializable,GrantedAuthority {
+public class Role implements java.io.Serializable,ConfigAttribute,GrantedAuthority {
 
 	/**
 	 * 
@@ -36,6 +37,7 @@ public class Role implements java.io.Serializable,GrantedAuthority {
 	private Set<Account> accounts = new HashSet<Account>(0);
 	
 	private String authority;
+	private String attribute;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -86,6 +88,11 @@ public class Role implements java.io.Serializable,GrantedAuthority {
 
 	public void setAuthority(String authority) {
 		this.authority = authority;
+	}
+	
+	@Transient
+	public String getAttribute() {
+		return name;
 	}
 
 }

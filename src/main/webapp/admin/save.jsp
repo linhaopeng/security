@@ -4,10 +4,9 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>index.jsp</title>
+<title>Insert title here</title>
 </head>
-<body>
-index.jsp首页
-<a href="j_spring_security_logout">注销</a>
+<body>admin-save.jsp页面
+
 </body>
 </html>
